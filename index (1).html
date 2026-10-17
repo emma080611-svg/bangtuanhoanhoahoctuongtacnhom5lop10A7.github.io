@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bảng tuần hoàn tương tác</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eaf4ff;--card:#fff;--tx:#12305e;--mu:#5a7194;--ac:#1d4fb8;--bd:#c7dcf5;--hl:#ff8a1f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1a2e;--card:#16273f;--tx:#e6f0ff;--mu:#93a9c8;--ac:#5b9bff;--bd:#2a4268}}
+:root[data-theme="dark"]{--bg:#0d1a2e;--card:#16273f;--tx:#e6f0ff;--mu:#93a9c8;--ac:#5b9bff;--bd:#2a4268}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:14px}
+h1{font-size:22px;margin:0 0 4px}
+h1 span{color:var(--hl)}
+p.sub{margin:0 0 12px;color:var(--mu);font-size:14px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.bar input{flex:1;min-width:160px;padding:8px 12px;border-radius:20px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:14px}
+.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:16px;padding:5px 10px;font-size:12px;cursor:pointer}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.wrap{overflow-x:auto;padding-bottom:8px}
+#grid{display:grid;grid-template-columns:repeat(18,minmax(46px,1fr));grid-template-rows:repeat(7,auto) 14px repeat(2,auto);gap:3px;min-width:900px}
+.el{border-radius:6px;padding:3px 2px;text-align:center;cursor:pointer;border:2px solid transparent;color:#12305e;transition:transform .12s}
+.el:hover{transform:scale(1.15);z-index:2;border-color:var(--hl)}
+.el.dim{opacity:.18}
+.el small{display:block;font-size:9px;text-align:left;padding-left:3px}
+.el b{font-size:16px;display:block;line-height:1.1}
+.el i{font-style:normal;font-size:8px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-kl{background:#ffb4a8}.c-kt{background:#ffd29a}.c-cm{background:#ffe99a}.c-nm{background:#b8ecb0}.c-ha{background:#9fe6e6}.c-kh{background:#c9b8f5}.c-cd{background:#ffc0e0}.c-pk{background:#b4cdf7}.c-lt{background:#a8e0d0}.c-ac{background:#e5b8f0}
+#ov{position:fixed;inset:0;background:rgba(5,15,40,.6);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) 12px 20px;z-index:20}
+#ov.show{display:flex}
+.modal{background:var(--card);border-radius:20px;max-width:760px;width:100%;padding:16px;border:1px solid var(--bd);position:relative;margin:auto}
+.x{position:absolute;right:12px;top:10px;border:0;background:var(--bd);color:var(--tx);width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer}
+.top{display:flex;gap:16px;flex-wrap:wrap}
+.big{width:170px;border-radius:16px;padding:10px;text-align:center;color:#12305e;border:3px solid #2f5fd0;flex:none}
+.big .n{font-size:20px;font-weight:700}.big .s{font-size:54px;font-weight:800;line-height:1}.big .nm{font-weight:700}.big .m{font-size:13px;margin-bottom:6px}
+#qr{background:#fff;padding:6px;border-radius:8px;display:inline-block;line-height:0}
+.big .hint{font-size:10px;margin-top:4px}
+.right{flex:1;min-width:230px}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--bd);background:var(--bg);color:var(--tx);padding:9px 12px;border-radius:12px;font-size:14px;cursor:pointer;font-weight:600}
+.tab em{font-style:normal;font-size:18px}
+.tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.pane{margin-top:14px;border:1px dashed var(--bd);border-radius:14px;padding:14px;min-height:150px;font-size:14px;line-height:1.55}
+.vid{background:linear-gradient(135deg,#1d4fb8,#0b2a6b);border-radius:12px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#fff;flex-direction:column;gap:8px;text-decoration:none}
+.vid span{font-size:46px}
+.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.apps div{background:var(--bg);border-radius:10px;padding:12px;text-align:center}
+.apps div b{display:block;font-size:30px}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:9px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:14px;cursor:pointer}
+.opt.ok{background:#2e9e4f;color:#fff}.opt.no{background:#d44;color:#fff}
+.ex{background:var(--bg);padding:8px 12px;border-radius:10px;margin-top:10px;font-size:13px}
+#grid.d{grid-template-columns:repeat(18,minmax(84px,1fr));min-width:1560px}
+.el small{display:flex;justify-content:space-between;padding:0 3px}
+#grid:not(.d) small{display:block}
+.sy{display:flex;align-items:baseline;justify-content:center;gap:3px}
+.sy b{font-size:20px}
+.en{font-style:normal;font-size:8px;opacity:.7}
+.d .el i{font-size:10px}
+.cf{font-size:8px;line-height:1.25;word-break:break-all;opacity:.85;min-height:20px}
+.ox{font-size:8px;border-top:1px solid rgba(0,0,0,.25);margin-top:2px;padding-top:1px;background:rgba(255,255,255,.55);border-radius:0 0 4px 4px;min-height:11px}
+#grid:not(.d) .cf,#grid:not(.d) .ox,#grid:not(.d) .en,#grid:not(.d) small span:nth-child(2){display:none}
+#grid.blk .b-s{background:#b5e07b}
+#grid.blk .b-p{background:#f7b5d3}
+#grid.blk .b-d{background:#fbf27a}
+#grid.blk .b-f{background:#ffd0a0}
+.lg{display:flex;align-items:center;gap:8px;margin:5px 0}
+.dot{width:14px;height:14px;border-radius:50%;flex:none}
+.bdg{display:inline-block;border:1px solid var(--bd);border-radius:8px;padding:2px 8px;margin:2px;font-family:ui-monospace,monospace;background:var(--bg)}
+.tb{width:100%;border-collapse:collapse;margin:10px 0}
+.tb td{padding:9px 4px;border-bottom:1px solid var(--bd)}
+.tb td+td{text-align:right;font-family:ui-monospace,monospace}
+.why{background:#fff3a0;color:#12305e;padding:1px 6px;border-radius:4px;font-weight:700}
+.num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:#ffd93d;color:#12305e;font-weight:700;align-items:center;justify-content:center;margin-right:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:10px 0}
+.cards div{border:2px solid var(--tx);background:#e8f0fe;color:#12305e;border-radius:10px;padding:14px 8px;text-align:center;font-weight:700}
+.cards div span{display:block;font-size:34px}
+.cards img{width:100%;height:80px;object-fit:cover;border-radius:6px}
+</style>
+</head>
+<body>
+<h1>🚀 <span>LEVEL UP:</span> Bảng tuần hoàn tương tác</h1>
+<p class="sub">Bấm vào một nguyên tố để xem video, hình ảnh ứng dụng, mô hình nguyên tử, thí nghiệm và câu hỏi. Quét mã QR để học trên điện thoại.</p>
+<div class="bar"><input id="q" placeholder="Tìm theo ký hiệu, tên hoặc số hiệu…"><button class="chip on" id="tc">Màu theo khối</button><button class="chip on" id="tg">Ghi chú chi tiết: Bật</button><span id="chips" style="display:contents"></span></div>
+<div class="wrap"><div id="grid" class="d blk"></div></div>
+<div id="ov"><div class="modal"><button class="x" onclick="closeM()">✕</button><div class="top"><div class="big" id="big"></div><div class="right"><div class="tabs" id="tabs"></div></div></div><div class="pane" id="pane"></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const RAW="H Hydrogen 1,008|He Helium 4,0026|Li Lithium 6,94|Be Beryllium 9,0122|B Boron 10,81|C Carbon 12,011|N Nitrogen 14,007|O Oxygen 15,999|F Fluorine 18,998|Ne Neon 20,180|Na Sodium 22,990|Mg Magnesium 24,305|Al Aluminium 26,982|Si Silicon 28,085|P Phosphorus 30,974|S Sulfur 32,06|Cl Chlorine 35,45|Ar Argon 39,948|K Potassium 39,098|Ca Calcium 40,078|Sc Scandium 44,956|Ti Titanium 47,867|V Vanadium 50,942|Cr Chromium 51,996|Mn Manganese 54,938|Fe Iron 55,845|Co Cobalt 58,933|Ni Nickel 58,693|Cu Copper 63,546|Zn Zinc 65,38|Ga Gallium 69,723|Ge Germanium 72,630|As Arsenic 74,922|Se Selenium 78,971|Br Bromine 79,904|Kr Krypton 83,798|Rb Rubidium 85,468|Sr Strontium 87,62|Y Yttrium 88,906|Zr Zirconium 91,224|Nb Niobium 92,906|Mo Molybdenum 95,95|Tc Technetium 98|Ru Ruthenium 101,07|Rh Rhodium 102,91|Pd Palladium 106,42|Ag Silver 107,87|Cd Cadmium 112,41|In Indium 114,82|Sn Tin 118,71|Sb Antimony 121,76|Te Tellurium 127,60|I Iodine 126,90|Xe Xenon 131,29|Cs Caesium 132,91|Ba Barium 137,33|La Lanthanum 138,91|Ce Cerium 140,12|Pr Praseodymium 140,91|Nd Neodymium 144,24|Pm Promethium 145|Sm Samarium 150,36|Eu Europium 151,96|Gd Gadolinium 157,25|Tb Terbium 158,93|Dy Dysprosium 162,50|Ho Holmium 164,93|Er Erbium 167,26|Tm Thulium 168,93|Yb Ytterbium 173,05|Lu Lutetium 174,97|Hf Hafnium 178,49|Ta Tantalum 180,95|W Tungsten 183,84|Re Rhenium 186,21|Os Osmium 190,23|Ir Iridium 192,22|Pt Platinum 195,08|Au Gold 196,97|Hg Mercury 200,59|Tl Thallium 204,38|Pb Lead 207,2|Bi Bismuth 208,98|Po Polonium 209|At Astatine 210|Rn Radon 222|Fr Francium 223|Ra Radium 226|Ac Actinium 227|Th Thorium 232,04|Pa Protactinium 231,04|U Uranium 238,03|Np Neptunium 237|Pu Plutonium 244|Am Americium 243|Cm Curium 247|Bk Berkelium 247|Cf Californium 251|Es Einsteinium 252|Fm Fermium 257|Md Mendelevium 258|No Nobelium 259|Lr Lawrencium 266|Rf Rutherfordium 267|Db Dubnium 268|Sg Seaborgium 269|Bh Bohrium 270|Hs Hassium 277|Mt Meitnerium 278|Ds Darmstadtium 281|Rg Roentgenium 282|Cn Copernicium 285|Nh Nihonium 286|Fl Flerovium 289|Mc Moscovium 290|Lv Livermorium 293|Ts Tennessine 294|Og Oganesson 294";
+const CATS={kl:"Kim loại kiềm",kt:"Kiềm thổ",cm:"Kim loại chuyển tiếp",pk:"Kim loại yếu",cd:"Á kim",nm:"Phi kim",ha:"Halogen",kh:"Khí hiếm",lt:"Lanthanide",ac:"Actinide"};
+const inl=(z,a)=>a.includes(z);
+function cat(z){
+ if(inl(z,[3,11,19,37,55,87]))return"kl";if(inl(z,[4,12,20,38,56,88]))return"kt";
+ if(inl(z,[2,10,18,36,54,86,118]))return"kh";if(inl(z,[9,17,35,53,85,117]))return"ha";
+ if(inl(z,[5,14,32,33,51,52]))return"cd";if(inl(z,[1,6,7,8,15,16,34]))return"nm";
+ if(z>=57&&z<=71)return"lt";if(z>=89&&z<=103)return"ac";
+ if((z>=21&&z<=30)||(z>=39&&z<=48)||(z>=72&&z<=80)||(z>=104&&z<=112))return"cm";return"pk";}
+function pos(z){
+ if(z==1)return[1,1];if(z==2)return[1,18];
+ if(z<=4)return[2,z-2];if(z<=10)return[2,z+8];
+ if(z<=12)return[3,z-10];if(z<=18)return[3,z];
+ if(z<=36)return[4,z-18];if(z<=54)return[5,z-36];
+ if(z<=56)return[6,z-54];if(z<=71)return[9,z-54];if(z<=86)return[6,z-68];
+ if(z<=88)return[7,z-86];if(z<=103)return[10,z-86];return[7,z-100];}
+const E=RAW.split("|").map((s,i)=>{const[a,b,c]=s.split(" ");return{z:i+1,s:a,n:b,m:c,c:cat(i+1)}});
+
+// Thông tin riêng cho một số nguyên tố (các nguyên tố khác dùng mẫu chung)
+const INFO={
+O:{app:[["🫁","Hô hấp của sinh vật"],["🔥","Duy trì sự cháy"],["🏥","Bình thở oxy y tế"],["🔩","Hàn cắt kim loại"]],
+ exp:"Đốt que đóm còn tàn đỏ trong bình khí oxygen: que đóm bùng cháy sáng. Chứng tỏ oxygen duy trì sự cháy mạnh hơn không khí.",
+ q:{q:"Oxygen có vai trò gì trong hô hấp và sự cháy?",o:["Làm tắt ngọn lửa","Duy trì sự hô hấp và sự cháy","Chỉ có trong nước, không có trong không khí","Không tham gia phản ứng hoá học"],a:1,e:"Oxygen là chất oxi hoá: cung cấp cho quá trình hô hấp tế bào và giúp các chất cháy được."}},
+H:{app:[["🚀","Nhiên liệu tên lửa"],["🔋","Pin nhiên liệu hydrogen"],["🧪","Sản xuất NH₃"],["🎈","Khinh khí cầu (xưa)"]],
+ exp:"Cho kẽm vào dung dịch HCl, thu khí H₂ rồi đưa que lửa lại gần: nghe tiếng nổ nhỏ “póp”.",
+ q:{q:"Hydrogen là nguyên tố có đặc điểm nào?",o:["Nặng nhất","Nhẹ nhất","Là khí hiếm","Là kim loại kiềm thổ"],a:1,e:"Hydrogen có khối lượng nguyên tử nhỏ nhất, khoảng 1,008."}},
+C:{app:[["💎","Kim cương"],["✏️","Than chì, bút chì"],["🏭","Than, nhiên liệu"],["🧬","Chất nền của sự sống"]],
+ exp:"Đốt than trong bình oxygen rồi sục khí vào nước vôi trong: nước vôi vẩn đục do tạo CaCO₃.",
+ q:{q:"Kim cương và than chì đều được cấu tạo từ nguyên tố nào?",o:["Silicon","Carbon","Oxygen","Lưu huỳnh"],a:1,e:"Đây là hai dạng thù hình khác nhau của carbon."}},
+Na:{app:[["🧂","Muối ăn NaCl"],["💡","Đèn hơi sodium"],["🧼","Xà phòng, xút NaOH"],["🧊","Chất làm lạnh lò phản ứng"]],
+ exp:"Thả mẩu Na nhỏ vào nước có phenolphthalein: Na chạy trên mặt nước, có khí thoát ra, dung dịch hoá hồng (tạo NaOH).",
+ q:{q:"Sodium tác dụng với nước tạo ra gì?",o:["NaOH và H₂","NaCl và O₂","Na₂O và CO₂","Chỉ có H₂O₂"],a:0,e:"2Na + 2H₂O → 2NaOH + H₂↑"}},
+Fe:{app:[["🏗️","Thép xây dựng"],["🚗","Ô tô, máy móc"],["🩸","Hemoglobin trong máu"],["🍳","Dụng cụ nhà bếp"]],
+ exp:"Đốt dây sắt cuốn lò xo trong bình oxygen: sắt cháy sáng chói, tạo các hạt Fe₃O₄ màu nâu đen.",
+ q:{q:"Sắt có vai trò gì trong cơ thể người?",o:["Tạo xương","Thành phần của hemoglobin vận chuyển O₂","Tạo men răng","Điều hoà thân nhiệt trực tiếp"],a:1,e:"Hemoglobin chứa sắt, giúp hồng cầu vận chuyển oxygen."}},
+Au:{app:[["💍","Trang sức"],["💻","Mạch điện tử"],["🏦","Dự trữ giá trị"],["🛰️","Lớp phủ vệ tinh"]],
+ exp:"Gold không bị gỉ trong không khí ẩm và không tan trong HCl hay H₂SO₄ loãng. Chỉ tan trong nước cường toan.",
+ q:{q:"Vì sao vàng được dùng làm trang sức lâu bền?",o:["Rất dễ gỉ","Rất trơ về mặt hoá học","Rất nhẹ","Dễ bay hơi"],a:1,e:"Vàng hầu như không phản ứng với oxygen và nước."}},
+Cl:{app:[["🚰","Khử trùng nước"],["🧴","Thuốc tẩy"],["🧂","Muối NaCl"],["🧱","Nhựa PVC"]],
+ exp:"Cho giấy màu ẩm vào bình khí chlorine: màu bị mất do tạo HClO có tính tẩy màu (thực hiện trong tủ hút).",
+ q:{q:"Chlorine thuộc nhóm nguyên tố nào?",o:["Kim loại kiềm","Khí hiếm","Halogen","Kiềm thổ"],a:2,e:"Chlorine nằm ở nhóm VIIA (17), nhóm halogen."}}
+};
+
+const MORE={H:{app:[[`🚌`,`Xe buýt chạy pin nhiên liệu hydrogen`],[`🚀`,`Nhiên liệu tên lửa đẩy`],[`🧈`,`Hydro hoá dầu thành bơ thực vật`],[`🌾`,`Sản xuất phân đạm NH₃`]],exp:`Điện phân nước: nhúng 2 điện cực than chì (ruột bút chì) vào nước pha chút muối, nối với pin 9V. Bọt khí ở cực âm nhiều gấp đôi cực dương vì tỉ lệ H₂ : O₂ = 2 : 1.`,qs:[{q:`Khi điện phân nước, khí nào thu được nhiều hơn?`,o:[`H₂`,`O₂`,`CO₂`,`N₂`],a:0,e:`2H₂O → 2H₂ + O₂ nên thể tích H₂ gấp đôi O₂.`}]},
+He:{app:[[`🎈`,`Bóng bay bay lên trời`],[`🩻`,`Làm lạnh máy chụp MRI`],[`🤿`,`Khí thở cho thợ lặn sâu`],[`🔧`,`Khí che chắn khi hàn nhôm`]],exp:`Thổi một quả bóng bằng khí helium và một quả bằng hơi thở: bóng heli bay lên, bóng thường rơi xuống vì heli nhẹ hơn không khí. Không hít trực tiếp từ bình áp suất cao.`,qs:[{q:`Vì sao bóng bay chứa helium bay lên?`,o:[`Heli nhẹ hơn không khí`,`Heli nóng hơn`,`Heli có màu`,`Heli dẫn điện`],a:0,e:`Khối lượng mol He (4) nhỏ hơn không khí (khoảng 29).`},{q:`Helium thuộc nhóm nào?`,o:[`Khí hiếm`,`Halogen`,`Kim loại kiềm`,`Á kim`],a:0,e:`He ở nhóm 18, rất trơ về mặt hoá học.`}]},
+C:{app:[[`💎`,`Nhẫn kim cương`],[`✏️`,`Ruột bút chì (than chì)`],[`🚰`,`Than hoạt tính lọc nước, khử mùi tủ lạnh`],[`🎣`,`Cần câu sợi carbon`]],exp:`Làm bộ lọc nước: xếp lần lượt bông, cát, than hoạt tính vào chai nhựa cắt đáy rồi đổ nước đục qua. Nước trong hơn vì than hấp phụ chất bẩn, màu và mùi.`,qs:[{q:`Than hoạt tính khử mùi nhờ tính chất nào?`,o:[`Hấp phụ`,`Dễ cháy`,`Tan trong nước`,`Dẫn nhiệt kém`],a:0,e:`Than xốp có diện tích bề mặt lớn nên hút các phân tử gây mùi.`}]},
+N:{app:[[`🌾`,`Phân đạm (urê) cho lúa, rau`],[`🍟`,`Bơm khí N₂ vào túi snack chống ôi`],[`🍦`,`Nitơ lỏng làm kem, bảo quản mẫu`],[`🚗`,`Túi khí ô tô`]],exp:`So sánh hai chậu rau cải: một chậu tưới nước thường, một chậu tưới nước pha phân đạm loãng. Sau 1–2 tuần chậu có đạm thường xanh tốt, lớn nhanh hơn.`,qs:[{q:`Khí nào chiếm khoảng 78% thể tích không khí?`,o:[`Nitrogen`,`Oxygen`,`Argon`,`CO₂`],a:0,e:`N₂ chiếm khoảng 78%, O₂ khoảng 21%.`}]},
+O:{app:[[`🫁`,`Bình thở oxy trong bệnh viện`],[`🔥`,`Đèn xì hàn cắt kim loại`],[`🤿`,`Bình khí của thợ lặn`],[`🐟`,`Máy sục khí cho bể cá`]],exp:`Nến trong cốc úp: đốt nến trên đĩa rồi úp cốc thuỷ tinh lên. Nến cháy một lúc rồi tắt vì hết oxygen. Cốc to cháy lâu hơn cốc nhỏ.`,qs:[{q:`Vì sao nến úp trong cốc kín thì tắt?`,o:[`Hết oxygen`,`Hết nitrogen`,`Có hơi nước`,`Cốc bị nóng`],a:0,e:`Sự cháy cần oxygen; khi oxygen dùng hết thì nến tắt.`},{q:`Ozone (O₃) là dạng thù hình của nguyên tố nào?`,o:[`Oxygen`,`Hydrogen`,`Carbon`,`Sulfur`],a:0,e:`O₂ và O₃ đều chỉ gồm nguyên tử oxygen.`}]},
+Na:{app:[[`🧂`,`Muối ăn trong bữa cơm`],[`🧼`,`Xà phòng, xút NaOH`],[`🍞`,`Baking soda làm bánh`],[`💡`,`Đèn đường ánh vàng cam`]],exp:`Làm tinh thể muối: hoà muối vào nước ấm đến bão hoà, treo sợi len vào, để vài ngày sẽ thấy tinh thể NaCl hình lập phương. Phản ứng natri với nước chỉ do giáo viên thực hiện.`,qs:[{q:`Natri được bảo quản trong chất nào?`,o:[`Dầu hoả`,`Nước`,`Rượu`,`Không khí`],a:0,e:`Na phản ứng mạnh với nước và oxygen nên được ngâm trong dầu hoả.`}]},
+Mg:{app:[[`🎆`,`Pháo hoa sáng trắng`],[`📸`,`Đèn flash thời xưa`],[`💊`,`Thuốc bổ magie`],[`✈️`,`Hợp kim nhẹ cho máy bay`]],exp:`Giáo viên đốt dải magie: cháy sáng trắng chói, tạo bột trắng MgO. Không nhìn trực tiếp vào ngọn lửa.`,qs:[{q:`Đốt magie trong không khí tạo chất nào?`,o:[`MgO`,`MgCl₂`,`Mg(OH)₂`,`MgS`],a:0,e:`2Mg + O₂ → 2MgO`}]},
+Al:{app:[[`🥫`,`Lon nước ngọt`],[`🍗`,`Giấy bạc gói thực phẩm`],[`✈️`,`Vỏ máy bay`],[`🪟`,`Cửa nhôm kính`]],exp:`So sánh dẫn nhiệt: đặt thìa nhôm và thìa nhựa vào cốc nước nóng, sờ phần cán sau 1 phút. Thìa nhôm nóng nhanh hơn vì nhôm dẫn nhiệt tốt.`,qs:[{q:`Vì sao dùng nhôm làm vỏ máy bay?`,o:[`Nhẹ và bền`,`Rất nặng`,`Dễ cháy`,`Có từ tính mạnh`],a:0,e:`Nhôm có khối lượng riêng nhỏ, hợp kim nhôm lại bền.`}]},
+Ca:{app:[[`🥛`,`Sữa, phô mai bổ sung canxi`],[`🦴`,`Xương và răng`],[`🏗️`,`Vôi, xi măng`],[`✍️`,`Phấn viết bảng`]],exp:`Ngâm vỏ trứng trong giấm 1 ngày: có bọt khí CO₂ và vỏ mềm dần vì CaCO₃ phản ứng với acid acetic trong giấm.`,qs:[{q:`Vỏ trứng chứa chủ yếu hợp chất nào?`,o:[`CaCO₃`,`NaCl`,`Fe₂O₃`,`SiO₂`],a:0,e:`Vỏ trứng, đá vôi, phấn đều chứa canxi cacbonat.`}]},
+Fe:{app:[[`🏗️`,`Thép cốt bê tông, cầu`],[`🍳`,`Chảo gang`],[`🩸`,`Hemoglobin trong máu`],[`🧲`,`Lõi nam châm, động cơ`]],exp:`Thí nghiệm gỉ sắt: 3 ống đựng đinh sắt: (1) nước thường, (2) nước đun sôi để nguội phủ dầu, (3) khô có gói hút ẩm. Sau 1 tuần chỉ ống (1) gỉ rõ: sắt cần cả nước và oxygen.`,qs:[{q:`Sắt bị gỉ khi tiếp xúc với gì?`,o:[`Nước và oxygen`,`Chỉ nitrogen`,`Chỉ ánh sáng`,`Chân không`],a:0,e:`Gỉ sắt hình thành khi có cả nước và oxygen.`},{q:`Vật nào bị nam châm hút?`,o:[`Đinh sắt`,`Đồng xu đồng`,`Giấy bạc`,`Hạt nhựa`],a:0,e:`Sắt là kim loại có từ tính.`}]},
+Cu:{app:[[`🔌`,`Dây điện`],[`🥘`,`Nồi, xoong đồng`],[`🪙`,`Đồng xu, tượng đồng`],[`❄️`,`Ống dẫn điều hoà`]],exp:`Làm sạch đồng xu xỉn: ngâm xu trong chanh hoặc giấm có chút muối 10 phút, lớp oxit đen bị hoà tan và xu sáng trở lại.`,qs:[{q:`Vì sao dây điện làm bằng đồng?`,o:[`Dẫn điện tốt`,`Cách điện tốt`,`Dễ cháy`,`Nhẹ hơn nước`],a:0,e:`Đồng dẫn điện tốt và dễ kéo thành sợi.`}]},
+S:{app:[[`🎆`,`Pháo hoa, que diêm`],[`🚗`,`Lưu hoá cao su làm lốp xe`],[`🧪`,`Sản xuất acid sulfuric`],[`🌱`,`Thuốc trừ nấm`]],exp:`Giáo viên đốt lưu huỳnh trong bình: ngọn lửa xanh, tạo khí SO₂ mùi hắc làm quỳ ẩm đổi màu. Khí độc nên chỉ làm trong tủ hút.`,qs:[{q:`Đốt lưu huỳnh trong không khí tạo khí nào?`,o:[`SO₂`,`CO₂`,`NH₃`,`H₂`],a:0,e:`S + O₂ → SO₂ (khí mùi hắc, độc).`}]},
+Cl:{exp:`Dùng que thử clo cho nước hồ bơi hoặc nước máy: nhúng que vào mẫu rồi so màu với bảng chuẩn để biết nồng độ clo khử trùng.`,qs:[{q:`Vì sao người ta cho clo vào hồ bơi?`,o:[`Diệt vi khuẩn`,`Tạo màu xanh`,`Làm nước ngọt`,`Làm nước ấm`],a:0,e:`Clo và HClO có tính oxi hoá mạnh nên diệt khuẩn.`}]},
+Au:{exp:`Thử vàng ở tiệm kim hoàn: dùng đá thử và dung dịch acid, vàng thật không bị acid ăn mòn, trong khi miếng đồng bị hoà tan.`,qs:[{q:`Vàng 24K nghĩa là gì?`,o:[`Vàng gần như nguyên chất`,`Vàng pha 50% bạc`,`Vàng mạ`,`Vàng rỗng`],a:0,e:`24K là độ tinh khiết cao nhất, khoảng 99,9%.`}]}};
+for(const k in MORE)INFO[k]=Object.assign(INFO[k]||{},MORE[k]);
+const GEN={kl:[[`🔋`,`Pin lithium, muối ăn`],[`🎆`,`Pháo hoa nhiều màu`],[`🧪`,`Hoá chất công nghiệp`],[`💊`,`Thuốc, dược phẩm`]],kt:[[`🦴`,`Xương, răng`],[`🏗️`,`Vôi, xi măng`],[`🎆`,`Pháo hoa`],[`✈️`,`Hợp kim nhẹ`]],cm:[[`🏗️`,`Hợp kim thép, kết cấu`],[`🔌`,`Dây dẫn, linh kiện`],[`💍`,`Trang sức, tiền xu`],[`⚙️`,`Xúc tác công nghiệp`]],pk:[[`🥫`,`Lon, vỏ hộp`],[`🔋`,`Pin, ắc quy`],[`🔌`,`Mối hàn, mạch điện`],[`🧱`,`Vật liệu xây dựng`]],cd:[[`💻`,`Chip bán dẫn, pin mặt trời`],[`🍶`,`Thuỷ tinh, gốm chịu nhiệt`],[`📱`,`Màn hình, điện thoại`],[`🌱`,`Phân bón vi lượng`]],nm:[[`🌱`,`Phân bón`],[`🧬`,`Cấu tạo cơ thể sống`],[`🧴`,`Hoá chất gia dụng`],[`🏭`,`Công nghiệp hoá chất`]],ha:[[`🚰`,`Khử trùng nước`],[`🧴`,`Thuốc tẩy, sát khuẩn`],[`🦷`,`Kem đánh răng`],[`💡`,`Đèn halogen`]],kh:[[`💡`,`Đèn neon, biển quảng cáo`],[`🎈`,`Khí nạp bóng bay`],[`🔧`,`Khí che chắn khi hàn`],[`🩻`,`Y học, chụp ảnh`]],lt:[[`🧲`,`Nam châm neodymium`],[`📺`,`Màn hình, đèn LED`],[`🚗`,`Pin xe hybrid`],[`🔬`,`Laser, thiết bị quang`]],ac:[[`⚡`,`Nhà máy điện hạt nhân`],[`🚨`,`Đầu báo khói`],[`🩺`,`Y học hạt nhân`],[`🔬`,`Nghiên cứu khoa học`]]};
+const EXPG={kl:`Thử màu ngọn lửa dưới sự giám sát của giáo viên: nhúng que tre vào muối của kim loại kiềm rồi đưa vào lửa cồn: Na vàng, K tím, Li đỏ. Không tự thử natri hay kali với nước.`,kt:`Thử màu ngọn lửa với giáo viên: muối chứa Ca cho lửa đỏ cam, Sr đỏ tươi, Ba xanh lục. Đeo kính bảo hộ và để xa vật dễ cháy.`,cm:`Thử tính dẫn điện: nối pin, bóng đèn LED và vật kim loại (đinh, dây, đồng xu). Đèn sáng chứng tỏ kim loại dẫn điện; so sánh với vật bằng nhựa, gỗ.`,pk:`So sánh dẫn nhiệt: đặt thanh kim loại và thanh nhựa cùng độ dài vào cốc nước nóng, sờ đầu còn lại sau 1 phút: đầu kim loại nóng nhanh hơn.`,cd:`Quan sát vật liệu bán dẫn: nối pin mặt trời mini với quạt nhỏ, che rồi chiếu sáng để thấy dòng điện thay đổi theo ánh sáng.`,nm:`So sánh tính dẫn điện: nối pin, đèn LED với ruột bút chì (than chì) và mẩu nhựa. Than chì làm đèn sáng, nhựa thì không.`,ha:`Quan sát tính tẩy màu: giáo viên nhỏ nước Javel pha loãng lên mảnh vải màu để thấy màu phai. Tuyệt đối không trộn với giấm hay chất tẩy khác.`,kh:`Quan sát màu phát sáng: xem đèn neon hoặc đèn plasma ở phòng thí nghiệm, mỗi khí hiếm phát màu riêng khi phóng điện.`,lt:`Thử từ tính: dùng nam châm neodymium nhỏ (lấy từ ổ cứng cũ) hút vụn sắt và quan sát đường sức từ.`,ac:`Chỉ quan sát qua video hoặc mô phỏng: lật 100 đồng xu, bỏ các đồng mặt sấp rồi lặp lại để mô phỏng chu kì bán rã của chất phóng xạ.`};
+const R={
+H:[[`Trong phòng thí nghiệm, khí H₂ thường được điều chế từ cặp chất nào?`,`Zn + dung dịch HCl`,`Cu + dung dịch HCl`,`Zn + nước lạnh`,`Cu + dung dịch NaCl`,`Kim loại đứng trước H trong dãy hoạt động hoá học đẩy được H₂ khỏi acid. Cu đứng sau H nên không phản ứng.`],
+[`Sản phẩm khi đốt cháy hydrogen trong không khí là gì?`,`Nước (H₂O)`,`Khí CO₂`,`Khí NH₃`,`Hydrogen peroxide`,`2H₂ + O₂ → 2H₂O. Vì chỉ tạo ra nước nên H₂ được xem là nhiên liệu sạch.`],
+[`Hỗn hợp H₂ và O₂ theo tỉ lệ thể tích nào nổ mạnh nhất?`,`2 : 1`,`1 : 1`,`1 : 2`,`3 : 1`,`Đúng tỉ lệ phản ứng 2H₂ + O₂ nên nổ mạnh nhất. Vì thế phải thử độ tinh khiết của H₂ trước khi đốt.`],
+[`Vì sao có thể thu khí H₂ bằng cách đẩy nước hoặc úp ngược bình?`,`H₂ rất nhẹ và ít tan trong nước`,`H₂ nặng hơn không khí và tan nhiều trong nước`,`H₂ phản ứng với không khí ở nhiệt độ thường`,`H₂ có màu nên dễ quan sát`,`H₂ nhẹ hơn không khí nên úp ngược bình, và ít tan nên đẩy nước được.`]],
+He:[[`Vì sao helium gần như không tạo hợp chất hoá học?`,`Lớp electron ngoài cùng (2 electron) đã đầy, rất bền`,`Nguyên tử He dễ nhường 1 electron`,`Nguyên tử He dễ nhận 2 electron`,`He có 8 electron ở lớp ngoài cùng`,`He chỉ có lớp K với 2 electron, đã bão hoà nên rất trơ.`],
+[`Vì sao khinh khí cầu và bóng bay hiện nay hay dùng He thay vì H₂?`,`He nhẹ và không cháy nên an toàn hơn`,`He nhẹ hơn H₂`,`He rẻ hơn mọi loại khí`,`He có màu giúp dễ nhìn thấy`,`H₂ nhẹ nhất nhưng dễ cháy nổ. He nhẹ thứ hai và hoàn toàn trơ.`],
+[`Hít khí helium làm giọng nói trở nên cao và the thé vì:`,`Âm truyền trong helium nhanh hơn trong không khí`,`Heli làm dây thanh rung chậm lại`,`Heli làm dây thanh giãn ra`,`Heli thay hết oxygen trong máu ngay lập tức`,`Tốc độ âm trong He lớn nên tần số cộng hưởng của khoang miệng tăng. Không nên hít từ bình áp suất cao vì có thể gây ngạt.`],
+[`Helium lỏng (khoảng -269 °C) được dùng để:`,`Làm lạnh nam châm siêu dẫn trong máy MRI`,`Làm nhiên liệu cho xe máy`,`Làm chất tẩy trắng`,`Làm phân bón`,`He có nhiệt độ sôi thấp nhất trong các chất, rất phù hợp để làm lạnh sâu.`]],
+Li:[[`Lithium thuộc nhóm nguyên tố nào?`,`Kim loại kiềm`,`Kiềm thổ`,`Halogen`,`Khí hiếm`,`Li ở nhóm IA, có 1 electron ở lớp ngoài cùng.`],
+[`Vì sao pin lithium-ion nhẹ mà chứa nhiều năng lượng?`,`Li là kim loại rất nhẹ và rất dễ nhường electron`,`Li là kim loại nặng nhất`,`Li hoàn toàn không phản ứng`,`Li không dẫn điện`,`Li nhẹ nhất trong các kim loại và có thế điện cực rất âm nên pin cho điện áp cao.`],
+[`Muối của lithium cho ngọn lửa màu gì?`,`Đỏ thẫm`,`Vàng`,`Tím`,`Xanh lục`,`Li đỏ, Na vàng, K tím. Đây là cách nhận biết ion kim loại.`],
+[`Khối lượng riêng của Li là 0,53 g/cm³. Điều này cho biết:`,`Li nhẹ hơn nước nên nổi trên mặt nước`,`Li chìm trong nước`,`Li tan hoàn toàn trong nước`,`Li nặng bằng nước`,`Khối lượng riêng nhỏ hơn 1 g/cm³ nên Li nổi. Li còn phản ứng với nước tạo LiOH và H₂.`]],
+Be:[[`Cấu hình electron của Be là 1s²2s². Be có mấy electron ở lớp ngoài cùng?`,`2 electron`,`1 electron`,`4 electron`,`8 electron`,`Z = 4 nên 2 electron ở lớp K, 2 electron ở lớp L.`],
+[`Beryllium thuộc nhóm nào?`,`Kim loại kiềm thổ`,`Kim loại kiềm`,`Kim loại chuyển tiếp`,`Á kim`,`Be ở nhóm IIA, đầu nhóm kiềm thổ.`],
+[`Cửa sổ ống tia X thường làm bằng berili vì:`,`Be hấp thụ rất ít tia X nên tia X xuyên qua dễ`,`Be dẫn nhiệt rất kém`,`Be rất nặng`,`Be là chất lỏng`,`Nguyên tử Be nhẹ (Z = 4) nên hấp thụ tia X rất ít.`],
+[`Vì sao phải đặc biệt cẩn thận với bụi berili?`,`Bụi và hợp chất của Be rất độc, gây bệnh phổi`,`Bụi Be tự bốc cháy`,`Bụi Be phóng xạ mạnh`,`Bụi Be làm mất nước cơ thể`,`Hít bụi Be có thể gây bệnh berili mạn tính ở phổi.`]],
+B:[[`Boron thuộc loại nguyên tố nào?`,`Á kim`,`Kim loại kiềm`,`Halogen`,`Khí hiếm`,`B nằm ở nhóm IIIA, có tính chất trung gian giữa kim loại và phi kim.`],
+[`Boron có số hiệu 5. Số electron ở lớp ngoài cùng là:`,`3`,`5`,`2`,`8`,`Cấu hình 1s²2s²2p¹ nên lớp ngoài cùng (lớp L) có 3 electron.`],
+[`Thuỷ tinh chịu nhiệt (borosilicate) dùng làm cốc thí nghiệm có chứa:`,`B₂O₃ (boron oxide)`,`NaCl`,`Fe₂O₃`,`CaSO₄`,`B₂O₃ giúp thuỷ tinh giãn nở nhiệt ít nên không dễ nứt khi nóng lạnh đột ngột.`],
+[`Boron là vi chất cần thiết cho cây vì giúp:`,`Phát triển mô, ra hoa và đậu quả`,`Thay thế hoàn toàn nitrogen`,`Hấp thụ ánh sáng thay diệp lục`,`Làm cứng thân bằng kim loại`,`Thiếu B cây dễ rụng hoa, quả biến dạng. Phân vi lượng thường bổ sung B.`]],
+C:[[`Kim cương và than chì khác nhau chủ yếu ở điểm nào?`,`Cách sắp xếp các nguyên tử carbon trong mạng tinh thể`,`Chứa các nguyên tố khác nhau`,`Có số proton khác nhau`,`Có khối lượng nguyên tử khác nhau`,`Cả hai chỉ gồm carbon, là các dạng thù hình khác nhau.`],
+[`Sục khí CO₂ vào nước vôi trong sẽ thấy hiện tượng gì?`,`Nước vôi vẩn đục màu trắng`,`Dung dịch chuyển xanh`,`Không có hiện tượng`,`Dung dịch bay hơi hết`,`CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O.`],
+[`Vì sao than chì dẫn điện còn kim cương thì không?`,`Than chì có electron di động giữa các lớp, kim cương dùng hết 4 electron để liên kết`,`Kim cương chứa nhiều tạp chất`,`Than chì là kim loại`,`Kim cương nhẹ hơn than chì`,`Trong kim cương, mỗi C liên kết cộng hoá trị với 4 C khác nên không có electron tự do.`],
+[`Đốt than trong phòng kín thiếu oxygen nguy hiểm vì sinh ra khí CO. CO độc vì:`,`Gắn vào hemoglobin, ngăn máu vận chuyển O₂`,`Làm máu đông lại ngay`,`Làm cơ thể lạnh đi`,`Phá huỷ xương`,`CO gắn với hemoglobin mạnh hơn O₂ nên gây ngạt.`]],
+N:[[`N₂ chiếm 78% không khí nhưng rất ít phản ứng ở điều kiện thường vì:`,`Liên kết ba N≡N rất bền`,`N₂ có màu`,`N₂ dễ nhường electron`,`N₂ rất nhẹ`,`Cần nhiều năng lượng để phá vỡ liên kết ba nên N₂ khá trơ.`],
+[`Vai trò của nitrogen đối với cây trồng là:`,`Thành phần của protein và diệp lục`,`Làm cứng xương`,`Hút ánh sáng thay lá`,`Chỉ làm đất tơi xốp`,`Thiếu đạm lá vàng, cây còi cọc.`],
+[`Sau cơn giông, đất được bổ sung đạm tự nhiên vì:`,`Tia sét giúp N₂ hoá hợp với O₂ tạo oxit nitrogen rồi tan vào nước mưa`,`Sét tạo ra CO₂`,`Sét làm bay hơi nước`,`Sét tạo ra kim loại`,`N₂ + O₂ → 2NO ở nhiệt độ rất cao, sau đó tạo nitrat theo nước mưa.`],
+[`Nitrogen lỏng (-196 °C) được dùng để:`,`Làm lạnh nhanh, bảo quản mẫu sinh học`,`Làm nhiên liệu đốt`,`Làm nóng thực phẩm`,`Làm điện cực`,`Nhiệt độ rất thấp giúp đông lạnh nhanh, như trong làm kem hoặc lưu giữ tế bào.`]],
+O:[[`Oxygen có vai trò gì trong hô hấp và sự cháy?`,`Duy trì sự hô hấp và sự cháy`,`Làm tắt ngọn lửa`,`Chỉ có trong nước`,`Không tham gia phản ứng`,`Oxygen là chất oxi hoá, cung cấp cho hô hấp tế bào và giúp các chất cháy.`],
+[`Oxygen chiếm khoảng bao nhiêu phần trăm thể tích không khí?`,`Khoảng 21%`,`Khoảng 78%`,`Khoảng 1%`,`Khoảng 50%`,`Không khí gồm khoảng 78% N₂, 21% O₂, còn lại là khí khác.`],
+[`Cách điều chế O₂ trong phòng thí nghiệm là:`,`Nhiệt phân KMnO₄ hoặc KClO₃`,`Điện phân dung dịch NaCl`,`Cho Zn vào dung dịch HCl`,`Đốt cháy than`,`2KMnO₄ → K₂MnO₄ + MnO₂ + O₂ (khi đun nóng).`],
+[`Cách nhận biết khí oxygen là:`,`Que đóm còn tàn đỏ bùng cháy`,`Nước vôi trong vẩn đục`,`Giấy quỳ hoá đỏ`,`Que lửa nổ tiếng póp`,`Que đóm bùng cháy vì nồng độ O₂ cao. Tiếng póp là của H₂.`],
+[`Tầng ozone (O₃) trong khí quyển có tác dụng:`,`Hấp thụ phần lớn tia cực tím có hại`,`Giữ nhiệt cho Trái Đất`,`Cung cấp oxygen để thở`,`Tạo ra mưa`,`Ozone chặn tia UV, bảo vệ sinh vật khỏi tổn thương DNA.`]],
+F:[[`Fluorine thuộc nhóm nguyên tố nào?`,`Halogen`,`Khí hiếm`,`Kim loại kiềm`,`Kiềm thổ`,`F ở nhóm VIIA, có 7 electron ở lớp ngoài cùng.`],
+[`Fluorine có độ âm điện lớn nhất bảng tuần hoàn nên:`,`Là phi kim mạnh nhất, rất hoạt động`,`Là kim loại mạnh nhất`,`Hoàn toàn trơ`,`Nhẹ nhất mọi nguyên tố`,`F hút electron rất mạnh nên phản ứng với hầu hết các nguyên tố.`],
+[`Fluoride trong kem đánh răng giúp:`,`Tăng cường men răng, giảm sâu răng`,`Làm răng trắng bằng clo`,`Tạo bọt nhiều hơn`,`Tạo mùi bạc hà`,`Ion F⁻ tạo fluorapatit bền hơn với acid so với men răng thường.`],
+[`Chảo chống dính phủ Teflon (PTFE) có đặc tính trơ nhờ:`,`Liên kết C–F rất bền`,`Có nhiều kim loại bên trong`,`Rất dễ bay hơi`,`Chứa nhiều nước`,`Liên kết C–F rất bền nên bề mặt trơ, thức ăn khó bám.`]],
+Ne:[[`Đèn neon quảng cáo (chỉ chứa Ne) phát ra ánh sáng màu:`,`Đỏ cam`,`Xanh lá`,`Tím`,`Vàng`,`Neon phóng điện cho màu đỏ cam. Các khí hiếm khác cho màu khác.`],
+[`Vì sao neon không tạo hợp chất?`,`Lớp ngoài cùng có 8 electron, rất bền`,`Lớp ngoài cùng chỉ có 1 electron`,`Neon luôn ở thể rắn`,`Neon quá nặng`,`Cấu hình 2s²2p⁶ bền vững nên Ne gần như không phản ứng.`],
+[`Neon thuộc nhóm nào trong bảng tuần hoàn?`,`Khí hiếm (nhóm VIIIA)`,`Halogen`,`Kim loại kiềm`,`Á kim`,`Các khí hiếm gồm He, Ne, Ar, Kr, Xe, Rn.`],
+[`Ống neon phát sáng khi có dòng điện chạy qua vì:`,`Electron bị kích thích rồi phát ánh sáng khi trở về trạng thái cơ bản`,`Khí neon bị cháy`,`Khí neon nóng chảy`,`Khí neon phản ứng với thuỷ tinh`,`Năng lượng điện kích thích nguyên tử, phần năng lượng dư thải ra dưới dạng ánh sáng.`]],
+Na:[[`Khi thả mẩu natri vào nước có phenolphtalein, hiện tượng quan sát được là:`,`Natri chạy trên mặt nước, có khí thoát ra, dung dịch hoá hồng`,`Natri chìm xuống đáy và tan êm`,`Dung dịch chuyển xanh`,`Không có hiện tượng`,`2Na + 2H₂O → 2NaOH + H₂↑. NaOH là bazơ nên làm phenolphtalein hoá hồng.`],
+[`Natri được bảo quản trong chất nào?`,`Dầu hoả`,`Nước`,`Rượu`,`Không khí`,`Na phản ứng mạnh với nước và oxygen nên phải ngâm trong dầu hoả.`],
+[`Muối natri cho ngọn lửa màu gì?`,`Vàng cam`,`Đỏ`,`Tím`,`Xanh lục`,`Ngọn lửa vàng của natri chính là màu của đèn đường natri.`],
+[`Liên kết trong tinh thể muối ăn NaCl là:`,`Liên kết ion giữa Na⁺ và Cl⁻`,`Liên kết cộng hoá trị`,`Liên kết kim loại`,`Liên kết hydrogen`,`Na nhường 1 electron cho Cl tạo ion trái dấu hút nhau.`]],
+Mg:[[`Đốt dải magie trong không khí tạo ra chất gì?`,`MgO (bột trắng)`,`MgCl₂`,`Mg(OH)₂`,`MgS`,`2Mg + O₂ → 2MgO, kèm ánh sáng trắng chói.`],
+[`Magie nằm ở trung tâm phân tử nào giúp cây quang hợp?`,`Diệp lục (chlorophyll)`,`Hemoglobin`,`Insulin`,`Keratin`,`Mg là nguyên tử trung tâm của diệp lục. Hemoglobin chứa sắt.`],
+[`Vì sao đám cháy magie không được dập bằng nước hay bình CO₂?`,`Mg phản ứng với cả nước và CO₂ nên cháy mạnh hơn`,`Nước biến Mg thành muối ăn`,`CO₂ làm Mg hoá lỏng`,`Nước và CO₂ quá nóng`,`Mg khử được CO₂ và H₂O. Nên dập bằng cát khô.`],
+[`Sữa magie Mg(OH)₂ giúp giảm đau dạ dày vì:`,`Trung hoà bớt acid trong dạ dày`,`Làm tăng acid dạ dày`,`Tạo khí oxygen`,`Làm nóng bao tử`,`Mg(OH)₂ + 2HCl → MgCl₂ + 2H₂O.`]],
+Al:[[`Vì sao đồ nhôm bền, khó bị gỉ trong không khí?`,`Có lớp Al₂O₃ mỏng, bền bảo vệ bên ngoài`,`Nhôm không phản ứng với oxygen`,`Nhôm trơ như vàng`,`Nhôm tan trong nước`,`Lớp Al₂O₃ mỏng và đặc khít ngăn nhôm bên trong bị oxi hoá tiếp.`],
+[`Quặng chính để sản xuất nhôm là:`,`Boxit`,`Hematit`,`Pirit`,`Đá vôi`,`Boxit chứa chủ yếu Al₂O₃.`],
+[`Nhôm được sản xuất công nghiệp bằng phương pháp nào?`,`Điện phân nóng chảy Al₂O₃`,`Nhiệt phân Al₂O₃`,`Khử Al₂O₃ bằng khí CO`,`Điện phân dung dịch AlCl₃`,`Al rất hoạt động nên phải dùng điện phân nóng chảy.`],
+[`Tái chế lon nhôm tiết kiệm khoảng bao nhiêu năng lượng so với sản xuất từ quặng?`,`Khoảng 95%`,`Khoảng 5%`,`Khoảng 50%`,`Gần như không tiết kiệm`,`Điện phân Al₂O₃ rất tốn điện, nấu chảy nhôm phế liệu tốn ít hơn nhiều.`]],
+Si:[[`Silicon thuộc loại nguyên tố nào?`,`Á kim, có tính bán dẫn`,`Kim loại kiềm`,`Halogen`,`Khí hiếm`,`Si nằm ở nhóm IVA, là vật liệu bán dẫn quan trọng nhất.`],
+[`Chip máy tính và pin mặt trời dùng silicon vì:`,`Si là chất bán dẫn, khả năng dẫn điện điều chỉnh được`,`Si dẫn điện tốt nhất`,`Si cách điện hoàn toàn`,`Si là kim loại lỏng`,`Pha tạp chất vào Si có thể thay đổi độ dẫn điện.`],
+[`Thành phần chính của cát và thuỷ tinh thường là:`,`SiO₂`,`CaCl₂`,`Fe₂O₃`,`Al₂O₃`,`Cát thạch anh là SiO₂ gần như tinh khiết.`],
+[`Gói silica gel trong hộp bánh có tác dụng gì?`,`Hút hơi ẩm vì có cấu trúc xốp`,`Làm bánh thơm`,`Tạo màu`,`Diệt vi khuẩn bằng clo`,`Silica gel xốp, hấp phụ hơi nước để giữ thực phẩm khô.`]],
+P:[[`Vì sao photpho trắng được bảo quản dưới nước?`,`Vì nó tự bốc cháy trong không khí`,`Vì nó tan trong nước`,`Vì nó nặng`,`Vì nó bay hơi`,`P trắng rất hoạt động, bắt lửa ở khoảng 40 °C nên phải ngâm trong nước.`],
+[`Phần ma sát ở vỏ hộp diêm chứa:`,`Photpho đỏ`,`Natri`,`Sắt`,`Than chì`,`Ma sát làm photpho đỏ và chất oxi hoá ở đầu que diêm bốc cháy.`],
+[`Photpho có vai trò gì trong cơ thể người?`,`Thành phần của xương, ATP và DNA`,`Tạo men tiêu hoá`,`Tạo hemoglobin`,`Tạo nước bọt`,`Ca₃(PO₄)₂ trong xương, ATP là phân tử năng lượng.`],
+[`Phân lân cung cấp cho cây nguyên tố nào?`,`Photpho`,`Nitrogen`,`Kali`,`Canxi`,`P giúp rễ phát triển, cây ra hoa và kết hạt.`]],
+S:[[`Đốt lưu huỳnh trong không khí tạo khí nào?`,`SO₂`,`CO₂`,`NH₃`,`H₂`,`S + O₂ → SO₂, khí mùi hắc, độc.`],
+[`SO₂ trong không khí gây mưa acid vì:`,`Tan trong nước mưa tạo acid sunfurơ, sunfuric`,`Tạo ra nước vôi`,`Tạo ra muối ăn`,`Làm nước đóng băng`,`SO₂ → H₂SO₃ → H₂SO₄ trong khí quyển, làm mưa có pH thấp.`],
+[`Lưu huỳnh được dùng để lưu hoá cao su nhằm:`,`Tăng độ bền, độ đàn hồi nhờ tạo cầu nối`,`Làm cao su dễ tan`,`Làm cao su mềm nhão`,`Đổi màu cao su`,`S tạo cầu nối giữa các mạch cao su.`],
+[`Khí gây mùi trứng thối là:`,`H₂S`,`SO₂`,`CO₂`,`NH₃`,`H₂S sinh ra khi protein chứa lưu huỳnh bị phân huỷ. Khí rất độc.`]],
+Cl:[[`Khí chlorine có màu và mùi thế nào?`,`Màu vàng lục, mùi hắc và độc`,`Không màu, không mùi`,`Màu nâu, mùi thơm`,`Màu xanh dương, không mùi`,`Cl₂ là khí vàng lục, rất độc nên chỉ làm trong tủ hút.`],
+[`Điện phân dung dịch NaCl có màng ngăn thu được:`,`NaOH, Cl₂ và H₂`,`Na và O₂`,`NaClO và CO₂`,`HCl và O₂`,`2NaCl + 2H₂O → 2NaOH + Cl₂ + H₂.`],
+[`Nước Javel (NaClO) có tác dụng tẩy trắng vì:`,`NaClO có tính oxi hoá mạnh`,`NaClO có tính khử mạnh`,`NaClO rất nhiều nước`,`NaClO tạo bọt`,`Hợp chất clo oxi hoá chất màu thành chất không màu.`],
+[`Nguyên tử Cl có xu hướng tạo ion nào?`,`Cl⁻ (nhận 1 electron)`,`Cl⁺ (nhường 1 electron)`,`Cl²⁺`,`Không tạo ion`,`Cl có 7 electron ngoài cùng, nhận thêm 1 electron để đủ 8.`]],
+Ar:[[`Argon chiếm khoảng bao nhiêu phần trăm thể tích không khí?`,`Khoảng 0,93%`,`Khoảng 21%`,`Khoảng 78%`,`Khoảng 0,04%`,`Ar là khí hiếm nhiều nhất trong khí quyển.`],
+[`Bóng đèn dây tóc nạp argon để:`,`Ngăn dây tóc vonfram bị oxi hoá, kéo dài tuổi thọ`,`Làm đèn nóng hơn`,`Làm đèn đổi màu`,`Làm dây tóc dẻo`,`Ar trơ nên dây tóc nóng sáng mà không cháy.`],
+[`Hàn TIG dùng khí argon nhằm:`,`Che chắn mối hàn nóng chảy khỏi oxygen`,`Làm mối hàn nguội nhanh`,`Tạo màu cho mối hàn`,`Làm mối hàn dẫn điện`,`Khí trơ ngăn kim loại nóng chảy bị oxi hoá.`],
+[`Vì sao argon rất trơ?`,`Lớp ngoài cùng có 8 electron (3s²3p⁶)`,`Có 1 electron ngoài cùng`,`Rất nhẹ`,`Có màu xanh`,`Lớp ngoài cùng bão hoà nên Ar không nhường hay nhận electron.`]],
+K:[[`Muối kali cho ngọn lửa màu gì?`,`Tím`,`Vàng`,`Đỏ`,`Xanh lục`,`Ngọn lửa tím là dấu hiệu nhận biết K⁺.`],
+[`Phân kali (KCl) giúp cây trồng:`,`Cứng cáp, tăng sức chống chịu`,`Bớt cần nước hoàn toàn`,`Thay thế ánh sáng`,`Tạo đạm`,`K điều hoà nước và tăng chống chịu sâu bệnh.`],
+[`So với natri, kali phản ứng với nước:`,`Mạnh hơn, thường bốc cháy với ngọn lửa tím`,`Yếu hơn, không cháy`,`Giống hệt`,`Không phản ứng`,`K có bán kính lớn hơn nên dễ nhường electron hơn Na.`],
+[`Ion K⁺ có vai trò trong cơ thể:`,`Điều hoà dịch tế bào, dẫn truyền thần kinh và co cơ`,`Tạo xương`,`Vận chuyển oxygen`,`Tạo mỡ`,`Chuối, khoai lang giàu kali giúp cơ và tim hoạt động bình thường.`]],
+Ca:[[`Nung đá vôi CaCO₃ ở nhiệt độ cao thu được:`,`CaO (vôi sống) và CO₂`,`Ca(OH)₂ và H₂`,`CaCl₂ và O₂`,`Ca và CO₂`,`CaCO₃ → CaO + CO₂ (nung vôi).`],
+[`Hiện tượng gì xảy ra khi tôi vôi (cho CaO vào nước)?`,`Toả nhiều nhiệt, tạo Ca(OH)₂`,`Thu nhiệt, tạo CaCO₃`,`Tạo khí oxygen`,`Không có hiện tượng`,`CaO + H₂O → Ca(OH)₂ + nhiệt.`],
+[`Nhũ đá trong hang động hình thành từ:`,`Ca(HCO₃)₂ tan trong nước phân huỷ tạo CaCO₃ kết tủa`,`NaCl kết tinh`,`Băng đóng băng`,`Cát thạch anh`,`Ca(HCO₃)₂ → CaCO₃↓ + CO₂ + H₂O theo thời gian.`],
+[`Canxi quan trọng với cơ thể vì:`,`Cấu tạo xương, răng và hỗ trợ đông máu, co cơ`,`Chỉ giúp mắt sáng`,`Chỉ giúp tạo mỡ`,`Tạo hemoglobin`,`Cơ thể chứa khoảng 99% canxi trong xương và răng.`]]};
+const Q20=Object.fromEntries(Object.entries(R).map(([k,v])=>[k,v.map(([q,c,x,y,z,e])=>({q,o:[c,x,y,z],a:0,e}))]));
+const VN='Hiđro|Heli|Liti|Beri|Bo|Cacbon|Nitơ|Oxi|Flo|Neon|Natri|Magie|Nhôm|Silic|Photpho|Lưu huỳnh|Clo|Agon|Kali|Canxi|Scandi|Titan|Vanadi|Crom|Mangan|Sắt|Coban|Niken|Đồng|Kẽm|Gali|Gemani|Asen|Selen|Brom|Kripton|Rubidi|Stronti|Ytri|Ziriconi|Niobi|Molipđen|Tecneti|Ruteni|Rodi|Paladi|Bạc|Cadimi|Indi|Thiếc|Antimon|Telu|Iot|Xenon|Xesi|Bari|Lantan|Xeri|Praseođim|Neođim|Prometi|Samari|Europi|Gađolini|Terbi|Dysprosi|Honmi|Eribi|Tuli|Ytecbi|Luteti|Hafni|Tantan|Vonfam|Reni|Osimi|Iriđi|Platin|Vàng|Thuỷ ngân|Tali|Chì|Bitmut|Poloni|Atatin|Radon|Franxi|Radi|Actini|Thori|Protactini|Urani|Neptuni|Plutoni|Americi|Curi|Berkeli|Californi|Einsteini|Fermi|Mendelevi|Nobeli|Lawrenci|Rutherfordi|Dubni|Seaborgi|Bohri|Hassi|Meitneri|Darmstadti|Roentgeni|Copernici|Nihoni|Flerovi|Moscovi|Livermori|Tennessin|Oganesson'.split('|');
+const EN='2.20|_|0.98|1.57|2.04|2.55|3.04|3.44|3.98|_|0.93|1.31|1.61|1.90|2.19|2.58|3.16|_|0.82|1.00|1.36|1.54|1.63|1.66|1.55|1.83|1.88|1.91|1.90|1.65|1.81|2.01|2.18|2.55|2.96|3.00|0.82|0.95|1.22|1.33|1.60|2.16|1.90|2.20|2.28|2.20|1.93|1.69|1.78|1.96|2.05|2.10|2.66|2.60|0.79|0.89|1.10|1.12|1.13|1.14|1.13|1.17|1.20|1.20|1.10|1.22|1.23|1.24|1.25|1.10|1.27|1.30|1.50|2.36|1.90|2.20|2.20|2.28|2.54|2.00|1.62|1.87|2.02|2.00|2.20|2.20|0.70|0.90|1.10|1.30|1.50|1.38|1.36|1.28|1.13|1.28|1.30|1.30|1.30|1.30|1.30|1.30|1.30|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_'.split('|').map(x=>x==='_'?'':x.replace('.',','));
+const OX='-1, +1|_|+1|+2|+3|-4, +2, +4|-3, +1…+5|-2, -1|-1|_|+1|+2|+3|-4, +4|-3, +3, +5|-2, +4, +6|-1, +1…+7|_|+1|+2|+3|+2, +3, +4|+2…+5|+2, +3, +6|+2, +4, +7|+2, +3|+2, +3|+2, +3|+1, +2|+2|+3|+2, +4|-3, +3, +5|-2, +4, +6|-1, +1…+7|+2|+1|+2|+3|+4|+3, +5|+4, +6|+4, +7|+3, +4, +8|+3|+2, +4|+1|+2|+3|+2, +4|-3, +3, +5|-2, +4, +6|-1, +1…+7|+2, +4, +6|+1|+2|+3|+3, +4|+3|+3|+3|+2, +3|+2, +3|+3|+3, +4|+3|+3|+3|+3|+2, +3|+3|+4|+5|+4, +6|+4, +7|+4, +8|+3, +4|+2, +4|+1, +3|+1, +2|+1, +3|+2, +4|+3, +5|+2, +4|-1, +1|+2|+1|+2|+3|+4|+4, +5|+4, +6|+5|+4|+3|+3|+3, +4|+3|+3|+3|+2, +3|+2, +3|+3|+4|+5|+6|+7|+8|_|_|_|+2|_|_|_|_|_|_'.split('|').map(x=>x==='_'?'':x);
+const SUPS='⁰¹²³⁴⁵⁶⁷⁸⁹',sup=n=>String(n).split('').map(d=>SUPS[d]).join('');
+const VIMAP={};E.forEach((e,i)=>{VIMAP[e.n.toLowerCase()]=VN[i]});const VIRE=new RegExp('(?<![A-Za-zÀ-ỹ])('+Object.keys(VIMAP).filter(k=>k!='tin').join('|')+')(?![A-Za-zÀ-ỹ])','gi');function vi(s){return String(s).replace(VIRE,m=>{const v=VIMAP[m.toLowerCase()];return m[0]===m[0].toLowerCase()?v[0].toLowerCase()+v.slice(1):v})}
+function blk(e){const z=e.z;if(z<=2||[3,4,11,12,19,20,37,38,55,56,87,88].includes(z))return 's';if(e.c=='lt'||e.c=='ac')return 'f';if(e.c=='cm')return 'd';return 'p'}
+function fm(e){if(e.z==8)return e.m;if(!e.m.includes(','))return '['+e.m+']';const v=parseFloat(e.m.replace(',','.'));if(v>=100)return v.toFixed(2).replace('.',',');const d=v>=10?2:3;return String(parseFloat((Math.round(v*10**d+1e-6)/10**d).toFixed(d))).replace('.',',')}
+const ORB=[['1s',2],['2s',2],['2p',6],['3s',2],['3p',6],['4s',2],['3d',10],['4p',6],['5s',2],['4d',10],['5p',6],['6s',2],['4f',14],['5d',10],['6p',6],['7s',2],['5f',14],['6d',10],['7p',6]];
+const CORE=[[86,'Rn',15],[54,'Xe',11],[36,'Kr',8],[18,'Ar',5],[10,'Ne',3],[2,'He',1]];
+const EXC={24:'[Ar]3d⁵4s¹',29:'[Ar]3d¹⁰4s¹',41:'[Kr]4d⁴5s¹',42:'[Kr]4d⁵5s¹',44:'[Kr]4d⁷5s¹',45:'[Kr]4d⁸5s¹',46:'[Kr]4d¹⁰',47:'[Kr]4d¹⁰5s¹',57:'[Xe]5d¹6s²',58:'[Xe]4f¹5d¹6s²',64:'[Xe]4f⁷5d¹6s²',78:'[Xe]4f¹⁴5d⁹6s¹',79:'[Xe]4f¹⁴5d¹⁰6s¹',89:'[Rn]6d¹7s²',90:'[Rn]6d²7s²',91:'[Rn]5f²6d¹7s²',92:'[Rn]5f³6d¹7s²',93:'[Rn]5f⁴6d¹7s²',96:'[Rn]5f⁷6d¹7s²',103:'[Rn]5f¹⁴7s²7p¹'};
+function cfg(z){if(EXC[z])return EXC[z];const c=CORE.find(x=>x[0]<z);let left=z;const cnt=[];for(const[o,cap]of ORB){const t=Math.min(cap,left);cnt.push(t);left-=t;if(left<=0)break}const st=c?c[2]:0;const part=ORB.map((o,i)=>[o[0],cnt[i]||0,i]).filter(x=>x[2]>=st&&x[1]>0).sort((a,b)=>(a[0][0]*10+'spdf'.indexOf(a[0][1]))-(b[0][0]*10+'spdf'.indexOf(b[0][1])));return(c?'['+c[1]+']':'')+part.map(x=>x[0]+sup(x[1])).join('')}
+document.getElementById('tc').onclick=function(){const g=document.getElementById('grid');const on=g.classList.toggle('blk');this.classList.toggle('on',on);this.textContent=on?'Màu theo khối':'Màu theo nhóm'};
+document.getElementById('tg').onclick=function(){const g=document.getElementById('grid');const on=g.classList.toggle('d');this.classList.toggle('on',on);this.textContent='Ghi chú chi tiết: '+(on?'Bật':'Tắt')};
+const APP={
+H:[[`💧`,`Nước`],[`📱`,`Công nghệ`],`Có trong nước H₂O`,`Nhiên liệu sạch cho pin nhiên liệu, tên lửa`,`Đốt H₂ chỉ tạo ra nước và toả rất nhiều nhiệt; H₂ là khí nhẹ nhất.`],
+He:[[`🎈`,`Bóng bay`],[`🩻`,`Y học`]
+,`Khí nhẹ, không cháy nên bơm khí cầu, bóng bay an toàn`,`Làm lạnh nam châm siêu dẫn trong máy MRI`,`He nhẹ hơn không khí, trơ hoá học và có nhiệt độ sôi thấp nhất (−269 °C).`],
+Li:[[`🔋`,`Pin`],[`📱`,`Điện thoại`],`Pin lithium-ion trong điện thoại, laptop, xe điện`,`Hợp kim nhôm–liti nhẹ cho hàng không`,`Li là kim loại nhẹ nhất và rất dễ nhường electron nên pin vừa nhẹ vừa tích được nhiều năng lượng.`],
+Be:[[`🩻`,`Tia X`],[`🛰️`,`Không gian`],`Cửa sổ ống tia X vì hấp thụ rất ít tia X`,`Gương của kính viễn vọng James Webb làm từ beri`,`Be nhẹ, cứng và bền nhiệt; nhưng bụi Be rất độc nên chỉ dùng trong kĩ thuật chuyên dụng.`],
+B:[[`🧪`,`Thuỷ tinh`],[`🌱`,`Nông nghiệp`],`Thuỷ tinh borosilicate chịu nhiệt (cốc, ống nghiệm)`,`Borax, acid boric làm chất sát khuẩn nhẹ; phân vi lượng cho cây`,`B₂O₃ làm thuỷ tinh giãn nở nhiệt ít nên không nứt khi nóng lạnh đột ngột.`],
+C:[[`💎`,`Kim cương`],[`✏️`,`Than chì`],`Kim cương làm trang sức, mũi khoan; than chì làm ruột bút chì`,`Than hoạt tính lọc nước, khử mùi; sợi carbon làm khung xe, cần câu`,`Carbon tạo nhiều dạng thù hình (kim cương, than chì…) nhờ cách sắp xếp nguyên tử khác nhau.`],
+N:[[`🌾`,`Phân bón`],[`🍟`,`Bảo quản`],`Phân đạm (urê, NH₄NO₃) giúp cây xanh tốt`,`Bơm N₂ vào túi snack; nitơ lỏng bảo quản mẫu, làm kem`,`N₂ chiếm 78% không khí, rất trơ (liên kết ba N≡N bền) nên dùng chống oxi hoá thực phẩm.`],
+O:[[`🫁`,`Hô hấp`],[`🔥`,`Hàn cắt`],`Bình oxi y tế cho bệnh nhân khó thở, thợ lặn`,`Đèn xì oxi–axetilen hàn, cắt kim loại`,`Oxi là chất oxi hoá mạnh: duy trì sự hô hấp tế bào và sự cháy.`],
+F:[[`🦷`,`Kem đánh răng`],[`🍳`,`Chảo chống dính`],`Fluoride trong kem đánh răng giúp men răng chống sâu răng`,`Teflon (PTFE) phủ chảo, ống dẫn hoá chất`,`F có độ âm điện lớn nhất, liên kết C–F rất bền nên Teflon trơ và chống dính.`],
+Ne:[[`💡`,`Đèn neon`],[`🔴`,`Laser`],`Biển quảng cáo neon phát màu đỏ cam rực rỡ`,`Laser He–Ne trong máy quét mã vạch và thí nghiệm quang học`,`Ne là khí hiếm trơ; khi phóng điện, electron bị kích thích phát ra ánh sáng đỏ cam.`],
+Na:[[`🧂`,`Muối ăn`],[`🧼`,`Xà phòng`],`Muối NaCl trong bữa ăn và bảo quản thực phẩm`,`NaOH sản xuất xà phòng, giấy; đèn đường hơi natri`,`Na dễ nhường 1 electron tạo Na⁺ nên hợp chất natri tan tốt và rất phổ biến.`],
+Mg:[[`🎆`,`Pháo hoa`],[`✈️`,`Vật liệu nhẹ`],`Cháy sáng chói nên dùng trong pháo hoa, pháo sáng`,`Hợp kim magie nhẹ cho khung laptop, xe, máy bay`,`Mg nhẹ, bền khi pha hợp kim và cháy toả nhiều ánh sáng; Mg cũng là tâm của diệp lục.`],
+Al:[[`🥫`,`Lon nước`],[`✈️`,`Máy bay`],`Lon nước ngọt, giấy bạc, khung cửa nhôm`,`Vỏ máy bay, ô tô vì nhẹ và bền`,`Al nhẹ (2,7 g/cm³), dẫn điện nhiệt tốt, có màng Al₂O₃ bảo vệ nên không gỉ.`],
+Si:[[`💻`,`Chip`],[`☀️`,`Pin mặt trời`],`Chip bán dẫn trong máy tính, điện thoại`,`Pin mặt trời; cát SiO₂ làm thuỷ tinh`,`Si là chất bán dẫn: độ dẫn điện điều chỉnh được khi pha tạp chất.`],
+P:[[`🌾`,`Phân lân`],[`🔥`,`Diêm`],`Phân lân giúp rễ phát triển, cây ra hoa kết quả`,`Photpho đỏ ở vỏ hộp diêm; ATP, DNA, xương chứa photpho`,`P là thành phần của ATP, DNA và xương nên rất quan trọng với sinh vật.`],
+S:[[`🚗`,`Lốp xe`],[`🧪`,`Acid`],`Lưu hoá cao su làm lốp xe`,`Sản xuất H₂SO₄, diêm, thuốc trừ nấm`,`S tạo cầu nối giữa các mạch cao su, làm cao su bền và đàn hồi hơn.`],
+Cl:[[`🚰`,`Nước sạch`],[`🧴`,`Tẩy rửa`],`Khử trùng nước máy, hồ bơi`,`Nước Javel tẩy trắng; nhựa PVC làm ống nước`,`Cl và hợp chất của clo oxi hoá mạnh nên diệt vi khuẩn và tẩy màu.`],
+Ar:[[`💡`,`Bóng đèn`],[`🔧`,`Hàn kim loại`],`Khí nạp trong bóng đèn dây tóc, cửa sổ hai lớp kính`,`Che chắn khi hàn kim loại (hàn TIG)`,`Ar rất trơ nên ngăn kim loại nóng và dây tóc bị oxi hoá.`],
+K:[[`🌾`,`Phân kali`],[`🍌`,`Dinh dưỡng`],`Phân kali (KCl) giúp cây cứng cáp, chống sâu bệnh`,`Ion K⁺ giúp dẫn truyền thần kinh, co cơ (chuối, khoai lang)`,`K⁺ điều hoà nước và tín hiệu điện trong tế bào.`],
+Ca:[[`🦴`,`Xương răng`],[`🏗️`,`Xây dựng`],`Sữa, phô mai bổ sung canxi cho xương và răng`,`Vôi, xi măng, thạch cao, phấn viết bảng`,`Ca tạo CaCO₃, Ca₃(PO₄)₂ bền chắc nên là vật liệu của xương, vỏ sò và xây dựng.`]};
+Object.assign(APP,{
+Fe:[[`🏗️`,`Xây dựng`],[`🩸`,`Máu`],`Thép làm cốt bê tông, cầu, đường ray, ô tô`,`Hemoglobin chứa sắt vận chuyển O₂ trong máu`,`Fe bền và rẻ, pha thêm C thành thép cứng hơn; Fe²⁺ trong hemoglobin gắn O₂ để đưa đến tế bào.`],
+Cu:[[`🔌`,`Dây điện`],[`🥘`,`Nồi đồng`],`Dây điện, cuộn dây động cơ, ống dẫn nhiệt của điều hoà`,`Nồi, xoong đồng và đồng xu`,`Cu dẫn điện và dẫn nhiệt rất tốt (chỉ sau bạc) và dễ kéo thành sợi.`],
+Zn:[[`🔩`,`Mạ kẽm`],[`🔋`,`Pin`],`Mạ kẽm lên thép (tôn, ống) để chống gỉ`,`Cực âm trong pin kẽm–carbon; hợp kim đồng thau`,`Zn hoạt động hơn Fe nên bị ăn mòn trước, bảo vệ lớp sắt bên trong.`],
+Ag:[[`💍`,`Trang sức`],[`🔌`,`Điện tử`],`Trang sức, đồ bạc, gương tráng bạc`,`Tiếp điểm điện, bản mạch, pin mặt trời; ion bạc diệt khuẩn`,`Ag dẫn điện tốt nhất trong các kim loại và ion Ag⁺ diệt được vi khuẩn.`],
+Au:[[`💍`,`Trang sức`],[`💻`,`Điện tử`],`Trang sức, vàng thỏi và dự trữ giá trị`,`Chân tiếp xúc trong điện thoại, máy tính; lớp phủ vệ tinh`,`Au rất trơ, không gỉ hay xỉn nên bền đẹp và dẫn điện ổn định.`],
+Hg:[[`🌡️`,`Nhiệt kế`],[`⚠️`,`Độc hại`],`Nhiệt kế thuỷ ngân, huyết áp kế cũ (đang được thay thế)`,`Hơi thuỷ ngân rất độc nên phải thu gom đúng cách khi vỡ`,`Hg là kim loại duy nhất lỏng ở nhiệt độ phòng và giãn nở đều, nhưng độc với hệ thần kinh.`],
+Pb:[[`🔋`,`Ắc quy`],[`🩻`,`Chắn tia`],`Ắc quy chì–axit trong xe máy, ô tô`,`Tấm chì chắn tia X và tia gamma`,`Pb có khối lượng riêng lớn nên hấp thụ tia tốt; vì độc nên đã bị loại khỏi xăng và sơn.`],
+I:[[`🧂`,`Muối iot`],[`🩹`,`Sát trùng`],`Muối iot phòng bệnh bướu cổ`,`Dung dịch cồn iot sát trùng vết thương`,`I cần cho tuyến giáp tạo hormone; I₂ diệt khuẩn nhờ tính oxi hoá.`]});
+const CS={kl:`dễ nhường 1 electron tạo ion M⁺ nên là kim loại hoạt động mạnh.`,kt:`dễ nhường 2 electron tạo ion M²⁺ nên là kim loại hoạt động.`,cm:`là kim loại chuyển tiếp, electron ở phân lớp d cũng tham gia liên kết nên có nhiều số oxi hoá.`,pk:`là kim loại yếu của khối p, mềm, nóng chảy ở nhiệt độ tương đối thấp.`,cd:`là á kim, tính chất trung gian giữa kim loại và phi kim, thường là chất bán dẫn.`,nm:`là phi kim, có xu hướng nhận hoặc góp chung electron để đạt cấu hình bền.`,ha:`là halogen, dễ nhận 1 electron tạo ion X⁻ nên là phi kim rất hoạt động.`,kh:`là khí hiếm, lớp ngoài cùng đã bão hoà nên rất trơ.`,lt:`electron điền vào phân lớp 4f nên các nguyên tố trong họ có tính chất rất giống nhau.`,ac:`electron điền vào phân lớp 5f; hầu hết các nguyên tố trong họ đều phóng xạ.`};
+const GL=['IA','IIA','IIIB','IVB','VB','VIB','VIIB','VIIIB','VIIIB','VIIIB','IB','IIB','IIIA','IVA','VA','VIA','VIIA','VIIIA'];
+function per(z){return z<=2?1:z<=10?2:z<=18?3:z<=36?4:z<=54?5:z<=86?6:7}
+function shX(z){const s=EXC[z],m=s.match(/^\[(\w+)\]/),C={He:[2],Ne:[2,8],Ar:[2,8,8],Kr:[2,8,18,8],Xe:[2,8,18,18,8],Rn:[2,8,18,32,18,8]};if(!m||!C[m[1]])return null;const a=[...C[m[1]]],re=/(\d)[spdf]([⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g;let t;while((t=re.exec(s))){const n=+t[1]-1,v=+[...t[2]].map(ch=>SUPS.indexOf(ch)).join('');a[n]=(a[n]||0)+v}return a.map(x=>x||0)}
+function atomInfo(e){const sh=shells(e.z),n=sh.length,v=sh[n-1],L='KLMNOPQ',f=e.z>=57&&e.z<=71?'Họ lantan (khối f)':e.z>=89&&e.z<=103?'Họ actini (khối f)':'Nhóm '+GL[pos(e.z)[1]-1];const ex=e.z==1?'Nhóm IA → chỉ có 1 electron; H thường góp chung electron tạo liên kết cộng hoá trị (H₂O, CH₄) nên là phi kim, dù đứng ở nhóm IA.':`${f} → có ${v} electron ngoài cùng; ${CS[e.c]}`;return `<div class='lg'><span class='dot' style='background:#ff8a1f'></span><span>Hạt nhân: <b>+${e.z}</b> là điện tích hạt nhân (${e.z} proton)</span></div><div class='lg'><span class='dot' style='background:#e53935'></span><span>Electron lớp ngoài cùng: <b>${v} e</b>, quyết định tính chất hoá học</span></div><div class='lg'><span class='dot' style='border:2px solid #9bb'></span><span>Vòng tròn: lớp electron (${n} lớp = chu kì ${per(e.z)})</span></div><p>${sh.map((x,i)=>`<span class='bdg'><b style='color:var(--ac)'>${L[i]}</b> ${x}e</span>`).join('')}</p><table class='tb'><tr><td>Nguyên tử khối</td><td>${fm(e)}</td></tr><tr><td>Độ âm điện</td><td>${EN[e.z-1]||'—'}</td></tr><tr><td>Cấu hình electron</td><td>${cfg(e.z)}</td></tr><tr><td>Số oxi hoá</td><td>${OX[e.z-1]||'—'}</td></tr></table><p>Ô ${e.z} → hạt nhân có ${e.z} proton, vỏ có ${e.z} electron. Chu kì ${per(e.z)} → có ${n} lớp electron. ${ex}</p>`}
+function appTab(e,I,p){const A=APP[e.s];let cards,bl,why;if(A){cards=A.slice(0,2);bl=[A[2],A[3]];why=A[4]}else{const a=I.app||GEN[e.c];cards=a.slice(0,2);bl=[a[2][1],a[3][1]];why=VN[e.z-1]+' — '+CS[e.c]}p.innerHTML=`<h3 style='margin:0 0 6px'><span class='num'>1</span>Hình ảnh ứng dụng</h3><div class='cards'>${cards.map(x=>`<div>${x[2]?`<img src='${x[2]}' alt=''>`:`<span>${x[0]}</span>`}${vi(x[1])}</div>`).join('')}</div><ul>${bl.map(t=>`<li>${vi(t)}</li>`).join('')}</ul><p><span class='why'>Vì sao?</span> ${vi(why)}</p>`+(A?'':`<p style='color:var(--mu);font-size:12px'>Nội dung chung theo nhóm; sẽ bổ sung chi tiết riêng cho nguyên tố này.</p>`)}
+function mix(q,s){const n=q.o.length,r=s%n;return{...q,o:q.o.map((_,i)=>q.o[(i+n-r)%n]),a:(q.a+r)%n}}
+function gen(e){const sh=shells(e.z).length,r=Math.round(parseFloat(e.m.replace(',','.'))),S=[7,23,41].map(d=>E[(e.z-1+d)%118].s),C=Object.values(CATS).filter(x=>x!=CATS[e.c]),rot=e.z%C.length,C3=[0,1,2].map(i=>C[(rot+i)%C.length]);return[{q:`Ký hiệu hoá học của ${e.n} là gì?`,o:[e.s,...S],a:0,e:`${e.n} có ký hiệu ${e.s}.`},{q:`${e.n} (${e.s}) thuộc nhóm nguyên tố nào?`,o:[CATS[e.c],...C3],a:0,e:`${e.n} thuộc nhóm ${CATS[e.c].toLowerCase()}.`},{q:`Hạt nhân nguyên tử ${e.n} có bao nhiêu proton?`,o:[e.z,e.z+1,e.z+2,e.z+5].map(String),a:0,e:`Số proton bằng số hiệu nguyên tử Z = ${e.z}.`},{q:`Nguyên tử ${e.n} có bao nhiêu lớp electron?`,o:[sh,sh+1,sh+2,sh+3].map(String),a:0,e:`Phân bố electron: ${shells(e.z).join('–')}, tức ${sh} lớp.`},{q:`Nguyên tử khối của ${e.n} xấp xỉ bao nhiêu?`,o:[r,r+2,r+5,r+9].map(String),a:0,e:`Nguyên tử khối ${e.m}, làm tròn khoảng ${r}.`}]}
+function quiz(e,p){const I=INFO[e.s]||{},L=[];if(Q20[e.s])L.push(...Q20[e.s]);else{if(I.q)L.push(I.q);(I.qs||[]).forEach(x=>L.push(x))}const g=gen(e);let k=e.z%g.length;while(L.length<4)L.push(g[k++%g.length]);const Q=L.map((q,i)=>mix(q,e.z+i*3)).map(q=>({...q,q:vi(q.q),o:q.o.map(vi),e:vi(q.e)}));let i=0,sc=0;const show=()=>{if(i>=Q.length){p.innerHTML=`<div style='text-align:center'><div style='font-size:42px'>${sc>=Q.length-1?'🏆':'💪'}</div><b>Bạn đúng ${sc}/${Q.length} câu</b><br><button class='opt' id='rs' style='text-align:center;margin-top:10px'>Làm lại</button></div>`;document.getElementById('rs').onclick=()=>{i=0;sc=0;show()};return}const q=Q[i];p.innerHTML=`<small style='color:var(--mu)'>Câu ${i+1}/${Q.length}</small><br><b>${q.q}</b>`+q.o.map((t,j)=>`<button class='opt' data-k='${j}'>${String.fromCharCode(65+j)}. ${t}</button>`).join('')+`<div class='ex' id='ex' style='display:none'></div>`;p.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{p.querySelectorAll('.opt').forEach(x=>{x.disabled=true;const j=+x.dataset.k;if(j==q.a)x.classList.add('ok');else if(x==b)x.classList.add('no')});const ok=+b.dataset.k==q.a;if(ok)sc++;const ex=document.getElementById('ex');ex.style.display='block';ex.innerHTML=(ok?'✅ Chính xác! ':'❌ Chưa đúng. ')+q.e+`<br><button class='opt' id='nx' style='text-align:center;margin-top:8px'>${i+1<Q.length?'Câu tiếp ▶':'Xem kết quả'}</button>`;document.getElementById('nx').onclick=()=>{i++;show()}})};show()}
+const grid=document.getElementById("grid");
+E.forEach(e=>{
+ const[r,c]=pos(e.z);const d=document.createElement("div");
+ d.className="el c-"+e.c+" b-"+blk(e);d.style.gridRow=r;d.style.gridColumn=c;d.dataset.z=e.z;
+ d.innerHTML=`<small><span>${e.z}</span><span>${fm(e)}</span></small><div class='sy'><b>${e.s}</b><em class='en'>${EN[e.z-1]}</em></div><i>${VN[e.z-1]}</i><div class='cf'>${cfg(e.z)}</div><div class='ox'>${OX[e.z-1]||'&nbsp;'}</div>`;
+ d.onclick=()=>openM(e);grid.appendChild(d);});
+// ô chú thích phân nhóm La–Lu, Ac–Lr
+[["*",6,3],["*",7,3]].forEach(([t,r,c])=>{const d=document.createElement("div");d.style.cssText=`grid-row:${r};grid-column:${c};text-align:center;color:var(--mu)`;d.textContent=t;grid.appendChild(d)});
+
+// bộ lọc
+let cur=null;const chips=document.getElementById("chips");
+Object.entries(CATS).forEach(([k,v])=>{const b=document.createElement("button");b.className="chip";b.textContent=v;b.onclick=()=>{cur=cur==k?null:k;filter()};b.dataset.k=k;chips.appendChild(b)});
+document.getElementById("q").oninput=filter;
+function filter(){
+ const t=document.getElementById("q").value.trim().toLowerCase();
+ chips.querySelectorAll(".chip").forEach(b=>b.classList.toggle("on",b.dataset.k==cur));
+ grid.querySelectorAll(".el").forEach(d=>{const e=E[d.dataset.z-1];
+  const okT=!t||e.s.toLowerCase()==t||(e.n+' '+VN[e.z-1]).toLowerCase().includes(t)||String(e.z)==t;
+  d.classList.toggle("dim",!(okT&&(!cur||e.c==cur)))});}
+
+// cấu hình electron theo từng lớp
+function shells(z){if(EXC[z]){const r=shX(z);if(r)return r}
+ const ord=[[1,2],[2,2],[2,6],[3,2],[3,6],[4,2],[3,10],[4,6],[5,2],[4,10],[5,6],[6,2],[4,14],[5,10],[6,6],[7,2],[5,14],[6,10],[7,6]];
+ const s=[];let left=z;for(const[n,cap]of ord){if(left<=0)break;const t=Math.min(cap,left);s[n-1]=(s[n-1]||0)+t;left-=t}
+ return s.map(v=>v||0);}
+function bohr(e){
+ const sh=shells(e.z);let g=`<circle r="14" fill="#ff8a1f"/><text y="4" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${e.z}+</text>`;
+ sh.forEach((n,i)=>{const R=26+i*16;const dur=6+i*3;
+  g+=`<circle r="${R}" fill="none" stroke="#8aa9d8" stroke-dasharray="3 3"/><g><animateTransform attributeName="transform" type="rotate" from="0" to="${i%2?-360:360}" dur="${dur}s" repeatCount="indefinite"/>`;
+  for(let k=0;k<n;k++){const a=2*Math.PI*k/n;g+=`<circle cx="${(R*Math.cos(a)).toFixed(1)}" cy="${(R*Math.sin(a)).toFixed(1)}" r="3.2" fill="${i==sh.length-1?'#e53935':'#2f7bff'}"/>`}
+  g+="</g>"});
+ const W=26+sh.length*16+10;
+ return `<svg viewBox="${-W} ${-W} ${2*W} ${2*W}" style="width:100%;max-width:300px;display:block;margin:auto">${g}</svg><p style="text-align:center;margin:6px 0 0">Cấu hình lớp: <b>${sh.join(" – ")}</b> (electron mỗi lớp)</p>`;}
+
+// Gắn video YouTube cụ thể cho từng nguyên tố: ký hiệu → đường dẫn video
+const VIDEOS={
+ H:"https://www.youtube.com/watch?v=WkQVUNE9krg",
+ He:"https://www.youtube.com/watch?v=jDmBLMPxNc4",
+ Li:"https://www.youtube.com/watch?v=KPpnAnyoLH0",
+ Be:"https://www.youtube.com/watch?v=Bjb-9CO1-3M",
+ Na:"https://www.youtube.com/watch?v=TcnVYTyT4LE",
+ C:"https://www.youtube.com/watch?v=wFlaadb_guk",
+ N:"https://www.youtube.com/watch?v=01-n87e3gRE",
+ Al:"https://www.youtube.com/watch?v=MWDZtm8smOU",
+ Cu:"https://www.youtube.com/watch?v=C99ynyOrwPg",
+ Ti:"https://www.youtube.com/watch?v=6RJl2_-LVvU",
+ Mg:"https://www.youtube.com/watch?v=vkQx-YkSRMM",
+ Cl:"https://www.youtube.com/watch?v=s-VmrU826x0",
+ O:"https://www.youtube.com/watch?v=0EzSaeMFJuQ",
+ B:"https://www.youtube.com/watch?v=DzbpRqRkcnQ",
+ F:"https://www.youtube.com/watch?v=bk_VbIj7YEA",
+};
+let E0=null;
+const TABS=[["🎬","Video 30–60 giây"],["🖼️","Hình ảnh ứng dụng"],["⚛️","Mô hình nguyên tử"],["🧪","Thí nghiệm"],["❓","Câu hỏi tương tác"]];
+function openM(e){
+ E0=e;const col=getComputedStyle(grid.querySelector(`[data-z="${e.z}"]`)).backgroundColor;
+ const big=document.getElementById("big");big.style.background=col;
+ big.innerHTML=`<div class="n">${e.z}</div><div class="s">${e.s}</div><div class="nm">${VN[e.z-1]}</div><div style='font-size:11px;margin-bottom:4px'>${cfg(e.z)}</div><div class="m">${e.m}</div><div id="qr"></div><div class="hint">Quét QR để học thêm</div>`;
+ try{new QRCode(document.getElementById("qr"),{text:"https://en.wikipedia.org/wiki/"+e.n,width:96,height:96,correctLevel:QRCode.CorrectLevel.M})}catch(_){document.getElementById("qr").textContent="QR"}
+ const tb=document.getElementById("tabs");tb.innerHTML="";
+ TABS.forEach((t,i)=>{const b=document.createElement("button");b.className="tab";b.innerHTML=`<em>${t[0]}</em>${t[1]}`;b.onclick=()=>tab(i);tb.appendChild(b)});
+ document.getElementById("ov").classList.add("show");tab(4);}
+function closeM(){document.getElementById("ov").classList.remove("show")}
+document.getElementById("ov").onclick=ev=>{if(ev.target.id=="ov")closeM()};
+document.addEventListener("keydown",ev=>{if(ev.key=="Escape")closeM()});
+
+function quizOf(e){
+ const I=INFO[e.s];if(I)return I.q;
+ const w=[e.z+1,e.z-1>0?e.z-1:e.z+3,e.z+5].map(String);
+ const o=[String(e.z),...w];
+ return{q:`Số hiệu nguyên tử của ${e.n} (${e.s}) là bao nhiêu?`,o,a:0,e:`${e.n} có số hiệu nguyên tử ${e.z}, nghĩa là có ${e.z} proton trong hạt nhân.`};}
+
+function tab(i){
+ const e=E0,I=INFO[e.s]||{};
+ document.querySelectorAll(".tab").forEach((b,k)=>b.classList.toggle("on",k==i));
+ const p=document.getElementById("pane");
+ if(i==0){p.innerHTML=`<a class="vid" target="_blank" rel="noopener" href="${VIDEOS[e.s]||"https://www.youtube.com/results?hl=vi&search_query="+encodeURIComponent(VN[e.z-1]+" nguyên tố hoá học tiếng Việt 1 phút")}"><span>▶</span><b>Video ${VN[e.z-1]} trong 60 giây</b><small>${VIDEOS[e.s]?"Bấm để xem video trên YouTube":"Chưa gắn video riêng, bấm để tìm video tiếng Việt trên YouTube"}</small></a>`}
+ if(i==1){return appTab(e,I,p)}if(false){const a=I.app||GEN[e.c];
+  p.innerHTML=`<div class="apps">${a.map(x=>`<div><b>${x[2]?`<img src='${x[2]}' alt='' style='width:100%;height:90px;object-fit:cover;border-radius:8px'>`:x[0]}</b>${vi(x[1])}</div>`).join("")}</div>`+(I.app?"":`<p style="color:var(--mu);font-size:12px">Nội dung chung. Hãy bổ sung ứng dụng thực tế của ${e.n} trong đối tượng INFO.</p>`)}
+ if(i==2){p.innerHTML=bohr(e)+atomInfo(e)}
+ if(i==3){p.innerHTML=`<b>Thí nghiệm gợi ý</b><p>${vi(I.exp||EXPG[e.c])}</p>`}
+ if(i==4){return quiz(e,p)}if(false){const q=quizOf(e);
+  p.innerHTML=`<b>${q.q}</b>`+q.o.map((t,k)=>`<button class="opt" data-k="${k}">${String.fromCharCode(65+k)}. ${t}</button>`).join("")+`<div class="ex" id="ex" style="display:none"></div>`;
+  p.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+   p.querySelectorAll(".opt").forEach(x=>{x.disabled=true;const k=+x.dataset.k;if(k==q.a)x.classList.add("ok");else if(x==b)x.classList.add("no")});
+   const ex=document.getElementById("ex");ex.style.display="block";ex.textContent=(+b.dataset.k==q.a?"✅ Chính xác! ":"❌ Chưa đúng. ")+q.e});}
+}
+</script>
+</body>
+</html>
